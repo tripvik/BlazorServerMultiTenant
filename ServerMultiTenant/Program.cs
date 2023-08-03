@@ -28,7 +28,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddSingleton<WeatherForecastService>();
-builder.Services.AddScoped<ContextHelper>();
+builder.Services.AddScoped<TenantHelper>();
 var app = builder.Build();
 
 // Apply migrations if needed

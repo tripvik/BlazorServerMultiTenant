@@ -1,6 +1,10 @@
-﻿@inherits LayoutComponentBase
+﻿@using Finbuckle.MultiTenant;
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject TenantHelper Helper
+@implements IDisposable
 
-<PageTitle>ServerMultiTenant</PageTitle>
+<PageTitle>MultiTenantTodo</PageTitle>
 
 <div class="page">
     <div class="sidebar">
@@ -10,7 +14,7 @@
     <main>
         <div class="top-row px-4 auth">
             <LoginDisplay />
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            <a href="/">@CurrentTenent</a>
         </div>
 
         <article class="content px-4">
@@ -18,3 +22,54 @@
         </article>
     </main>
 </div>
+
+@code {
+    public string CurrentTenent { get; set; } = "Root";
+    private IDisposable registration;
+
+    protected override void OnInitialized()
+    {
+        AquireTenant();
+        registration = Navigation.RegisterLocationChangingHandler(LocationChangingHandler);
+    }
+
+    private ValueTask LocationChangingHandler(LocationChangingContext arg)
+    {
+        if (arg.TargetLocation == "/")
+        {
+            return ValueTask.CompletedTask;
+        }
+
+        try
+        {
+            CurrentTenent = Helper.GetCurrentTenant().Name!;
+        }
+        catch (TenantNotFoundException ex)
+        {
+            arg.PreventNavigation();
+            Navigation.NavigateTo("/");
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void AquireTenant()
+    {
+        if (Navigation.Uri != Navigation.Uri)
+        {
+            try
+            {
+                CurrentTenent = Helper.GetCurrentTenant().Name!;
+            }
+            catch (TenantNotFoundException ex)
+            {
+                Navigation.NavigateTo("/");
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        registration?.Dispose();
+    }
+}

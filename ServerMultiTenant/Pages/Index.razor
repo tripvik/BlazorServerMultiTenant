@@ -1,9 +1,37 @@
 ﻿@page "/"
+@using Finbuckle.MultiTenant;
+@using Microsoft.AspNetCore.Http
+@using ServerMultiTenant.Data;
+@inject IHttpContextAccessor httpContextAccessor
+@inject TenantHelper Helper
 
-<PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (!tenantFound || TenantInfo == null)
+{
+    <p><em>No Tenant Selected</em></p>
+}
+else
+{
+    <p><em>Current Tenant is @TenantInfo.Name</em></p>
+}
 
-Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code
+{
+    private List<ToDoItem> ToDoItems { get; set; } = new List<ToDoItem>();
+    private TenantInfo? TenantInfo { get; set; }
+    bool tenantFound;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            TenantInfo = Helper.GetCurrentTenant();
+            tenantFound = true;
+        }
+        catch (TenantNotFoundException)
+        {
+            tenantFound = false;
+        }
+    }
+}

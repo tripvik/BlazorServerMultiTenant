@@ -14,6 +14,8 @@ namespace ServerMultiTenant.Data
         {
         }
 
+        public DbSet<ToDoItem> ToDoItems => Set<ToDoItem>();
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite(TenantInfo.ConnectionString ?? throw new InvalidOperationException());
@@ -26,7 +28,5 @@ namespace ServerMultiTenant.Data
 
             base.OnModelCreating(modelBuilder);
         }
-
-        public DbSet<ToDoItem> ToDoItems { get; set; }
     }
 }
